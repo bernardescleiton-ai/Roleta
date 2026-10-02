@@ -7,15 +7,50 @@ const url = require('url');
 const PORT = 3000;
 const DB_PATH = path.join(__dirname, 'data', 'db.json');
 
+const DEFAULT_DB = {
+  adminPin: '1234',
+  campaigns: [
+    {
+      id: 1,
+      name: 'Promoção Outubro',
+      title: 'Gire a Roleta e Ganhe seu Prêmio!',
+      subtitle: 'Insira seu código exclusivo abaixo para liberar a roleta',
+      slug: 'outubro',
+      startDate: 1727827200000,
+      endDate: 1893456000000,
+      active: true,
+      createdAt: 1727827200000
+    }
+  ],
+  prizes: [
+    { id: 1, campaignId: 1, name: '5% de Desconto', description: 'Válido em compras acima de R$ 50', weight: 40, quantity: 500, unlimitedQuantity: false, active: true, colorHex: '#10B981' },
+    { id: 2, campaignId: 1, name: '10% de Desconto', description: 'Válido para qualquer item da loja', weight: 30, quantity: 199, unlimitedQuantity: false, active: true, colorHex: '#2563EB' },
+    { id: 3, campaignId: 1, name: '15% de Desconto', description: 'Válido para produtos selecionados', weight: 20, quantity: 50, unlimitedQuantity: false, active: true, colorHex: '#8B5CF6' },
+    { id: 4, campaignId: 1, name: '20% de Desconto', description: 'Desconto especial de cliente fiel', weight: 8, quantity: 20, unlimitedQuantity: false, active: true, colorHex: '#F59E0B' },
+    { id: 5, campaignId: 1, name: '50% de Desconto', description: 'Super prêmio da sorte!', weight: 2, quantity: 5, unlimitedQuantity: false, active: true, colorHex: '#EF4444' },
+    { id: 6, campaignId: 1, name: 'Brinde Especial', description: 'Retire no balcão da loja física', weight: 10, quantity: 30, unlimitedQuantity: false, active: true, colorHex: '#EC4899' }
+  ],
+  accessCodes: [
+    { id: 1, campaignId: 1, code: 'ROULET-8K42P', status: 'DISPONIVEL', usedAt: null, prizeId: null, prizeName: null, clientName: '', observation: '', createdAt: 1727827200000 },
+    { id: 2, campaignId: 1, code: 'RLT-7X92KP', status: 'DISPONIVEL', usedAt: null, prizeId: null, prizeName: null, clientName: '', observation: '', createdAt: 1727827200000 },
+    { id: 3, campaignId: 1, code: 'RLT-4M8Q2A', status: 'DISPONIVEL', usedAt: null, prizeId: null, prizeName: null, clientName: '', observation: '', createdAt: 1727827200000 },
+    { id: 4, campaignId: 1, code: 'ROULET-USED01', status: 'UTILIZADO', usedAt: 1790961035993, prizeId: 2, prizeName: '10% de Desconto', clientName: '', observation: '', createdAt: 1727827200000 }
+  ],
+  spins: []
+};
+
 // Helper to read DB
 function readDb() {
   try {
-    const raw = fs.readFileSync(DB_PATH, 'utf8');
-    return JSON.parse(raw);
-  } catch (e) {
-    console.error('Error reading db:', e);
-    return { adminPin: '1234', campaigns: [], prizes: [], accessCodes: [], spins: [] };
-  }
+    if (fs.existsSync(DB_PATH)) {
+      const raw = fs.readFileSync(DB_PATH, 'utf8');
+      const data = JSON.parse(raw);
+      if (data && data.prizes && data.prizes.length > 0) {
+        return data;
+      }
+    }
+  } catch (e) {}
+  return DEFAULT_DB;
 }
 
 // Helper to write DB atomically
