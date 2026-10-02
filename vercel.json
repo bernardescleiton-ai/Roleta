@@ -1,6 +1,7 @@
 {
   "version": 2,
-  "cleanUrls": true,
+  "buildCommand": "",
+  "outputDirectory": "public",
   "rewrites": [
     { "source": "/roleta", "destination": "/index.html" },
     { "source": "/admin", "destination": "/admin.html" },
