@@ -512,6 +512,34 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Static files serving
+  let staticPath = null;
+  if (pathname === '/' || pathname === '/index.html' || pathname === '/roleta') {
+    staticPath = path.join(__dirname, 'public', 'index.html');
+  } else if (pathname === '/admin' || pathname === '/admin.html') {
+    staticPath = path.join(__dirname, 'public', 'admin.html');
+  } else {
+    const candidate = path.join(__dirname, 'public', pathname);
+    if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
+      staticPath = candidate;
+    }
+  }
+
+  if (staticPath && fs.existsSync(staticPath)) {
+    const ext = path.extname(staticPath).toLowerCase();
+    const contentTypes = {
+      '.html': 'text/html; charset=utf-8',
+      '.css': 'text/css',
+      '.js': 'application/javascript',
+      '.json': 'application/json',
+      '.png': 'image/png',
+      '.jpg': 'image/jpeg'
+    };
+    res.writeHead(200, { 'Content-Type': contentTypes[ext] || 'text/plain' });
+    fs.createReadStream(staticPath).pipe(res);
+    return;
+  }
+
   res.writeHead(404, { 'Content-Type': 'text/plain' });
   res.end('Not Found');
 });
