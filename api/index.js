@@ -62,8 +62,8 @@ function parseJsonBody(req) {
 }
 
 module.exports = async (req, res) => {
-  const parsedUrl = url.parse(req.url, true);
-  const pathname = parsedUrl.pathname;
+  const parsedUrl = url.parse(req.url || '', true);
+  const pathname = req.targetRoute || parsedUrl.pathname || '';
   const method = req.method;
 
   res.setHeader('Access-Control-Allow-Origin', '*');

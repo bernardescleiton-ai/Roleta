@@ -741,24 +741,42 @@
 
     btnLogin.addEventListener('click', async () => {
       const pin = loginPin.value.trim();
+      if (!pin) {
+        loginError.textContent = 'Digite o PIN de acesso.';
+        loginError.style.display = 'block';
+        return;
+      }
+      loginError.style.display = 'none';
+      btnLogin.disabled = true;
+      btnLogin.textContent = 'Verificando...';
+
       try {
         const res = await fetch('/api/admin/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ pin })
         });
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
         if (res.ok && data.success) {
           sessionStorage.setItem('roleta_admin_auth', pin);
           currentAuthToken = pin;
           loginScreen.style.display = 'none';
           loadAdminData();
         } else {
+          loginError.textContent = data.message || 'PIN incorreto. Tente novamente.';
           loginError.style.display = 'block';
         }
       } catch (e) {
+        loginError.textContent = 'Erro ao conectar com a API. Verifique sua conexão.';
         loginError.style.display = 'block';
+      } finally {
+        btnLogin.disabled = false;
+        btnLogin.textContent = 'ENTRAR NO PAINEL';
       }
+    });
+
+    loginPin.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') btnLogin.click();
     });
 
     document.getElementById('btnLogout').addEventListener('click', () => {
