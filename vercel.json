@@ -1,7 +1,5 @@
 {
   "version": 2,
-  "buildCommand": "",
-  "outputDirectory": "public",
   "rewrites": [
     { "source": "/roleta", "destination": "/index.html" },
     { "source": "/admin", "destination": "/admin.html" },

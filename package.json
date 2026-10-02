@@ -1,9 +1,10 @@
 {
   "name": "roleta-da-sorte",
   "version": "1.0.0",
-  "description": "Roleta da Sorte Promocional com acesso por código único e painel administrativo",
+  "description": "Roleta da Sorte Promocional com código único de acesso, sorteio ponderado por probabilidade, controle de estoque e painel administrativo.",
   "main": "server/index.js",
   "scripts": {
-    "start": "node server/index.js"
+    "start": "node server/index.js",
+    "build": "mkdir -p public && cp -r server/public/* public/"
   }
 }
