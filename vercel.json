@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "public": "public",
   "cleanUrls": true,
   "rewrites": [
     { "source": "/roleta", "destination": "/index.html" },
