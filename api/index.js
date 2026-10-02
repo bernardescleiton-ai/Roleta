@@ -247,6 +247,70 @@ module.exports = async (req, res) => {
     return res.status(200).json({ success: true, count });
   }
 
+  // ADMIN SAVE PRIZE
+  if (pathname.endsWith('/admin/prize/save')) {
+    const body = await parseJsonBody(req);
+    const db = getDb();
+    const id = body.id ? parseInt(body.id) : null;
+    const name = (body.name || '').trim();
+    const description = (body.description || '').trim();
+    const weight = Math.max(1, parseInt(body.weight) || 10);
+    const quantity = parseInt(body.quantity) || 0;
+    const unlimitedQuantity = Boolean(body.unlimitedQuantity);
+    const colorHex = body.colorHex || '#10B981';
+    const campaignId = parseInt(body.campaignId) || 1;
+
+    if (!name) {
+      return res.status(400).json({ success: false, message: 'Nome do prêmio é obrigatório.' });
+    }
+
+    if (id) {
+      const pIdx = db.prizes.findIndex(p => p.id === id);
+      if (pIdx !== -1) {
+        db.prizes[pIdx] = {
+          ...db.prizes[pIdx],
+          name,
+          description,
+          weight,
+          quantity,
+          unlimitedQuantity,
+          colorHex
+        };
+      }
+    } else {
+      const newId = (db.prizes.length > 0 ? Math.max(...db.prizes.map(p => p.id)) : 0) + 1;
+      db.prizes.push({
+        id: newId,
+        campaignId,
+        name,
+        description,
+        weight,
+        quantity,
+        unlimitedQuantity,
+        active: true,
+        colorHex
+      });
+    }
+
+    saveDb(db);
+    return res.status(200).json({ success: true });
+  }
+
+  // ADMIN DELETE PRIZE
+  if (pathname.endsWith('/admin/prize/delete')) {
+    const body = await parseJsonBody(req);
+    const id = parseInt(body.id);
+    const db = getDb();
+
+    if (db.prizes.length <= 2) {
+      return res.status(400).json({ success: false, message: 'A roleta precisa de pelo menos 2 prêmios.' });
+    }
+
+    db.prizes = db.prizes.filter(p => p.id !== id);
+    saveDb(db);
+    return res.status(200).json({ success: true });
+  }
+
   // 8. ADMIN UPDATE SPIN CLIENT
   if (pathname.endsWith('/admin/spin/update')) {
     const body = await parseJsonBody(req);
@@ -262,6 +326,34 @@ module.exports = async (req, res) => {
       saveDb(db);
     }
     return res.status(200).json({ success: true });
+  }
+
+  // 9. ADMIN SETTINGS (PIN and WhatsApp Template)
+  if (pathname.endsWith('/admin/settings')) {
+    const body = await parseJsonBody(req);
+    const db = getDb();
+    if (body.adminPin && body.adminPin.length >= 4) {
+      db.adminPin = body.adminPin;
+    }
+    if (typeof body.whatsappTemplate === 'string') {
+      db.whatsappTemplate = body.whatsappTemplate;
+    }
+    saveDb(db);
+    return res.status(200).json({ success: true });
+  }
+
+  // 10. ADMIN UPDATE CAMPAIGN TEXTS
+  if (pathname.endsWith('/admin/campaign/update')) {
+    const body = await parseJsonBody(req);
+    const db = getDb();
+    const camp = db.campaigns.find(c => c.id === (parseInt(body.id) || 1)) || db.campaigns[0];
+    if (camp) {
+      if (body.name) camp.name = body.name.trim();
+      if (body.title) camp.title = body.title.trim();
+      if (body.subtitle !== undefined) camp.subtitle = body.subtitle.trim();
+      saveDb(db);
+    }
+    return res.status(200).json({ success: true, campaign: camp });
   }
 
   return res.status(404).send('Not Found');

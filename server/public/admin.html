@@ -454,7 +454,38 @@
     <!-- 2. CAMPAIGNS -->
     <div class="tab-panel" id="tab-campaigns">
       <div class="section-title">
-        <span>Campanhas Promocionais</span>
+        <span>Personalizar Textos da Roleta</span>
+      </div>
+
+      <div class="card" style="margin-bottom:24px;">
+        <h3 style="font-size:16px; margin-bottom:6px; color:#fde68a;">✏️ Frase do Topo da Roleta</h3>
+        <p style="font-size:13px; color:#94a3b8; margin-bottom:16px;">
+          Personalize a frase que fica no topo da roleta e o subtítulo explicativo exibido para os clientes.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Frase do Topo (Título Principal)</label>
+          <input type="text" id="campaignHeadlineInput" class="form-input" placeholder="Ex: Gire a Roleta e Ganhe seu Prêmio!">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Subtítulo (Instrução para o cliente)</label>
+          <input type="text" id="campaignSubtitleInput" class="form-input" placeholder="Ex: Insira seu código exclusivo abaixo para liberar a roleta">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Nome da Campanha</label>
+          <input type="text" id="campaignNameInput" class="form-input" placeholder="Ex: Promoção Outubro">
+        </div>
+
+        <div style="display:flex; gap:10px; align-items:center; margin-top:14px;">
+          <button class="btn btn-gold" id="btnSaveCampaignTexts">Salvar Textos da Roleta</button>
+          <button class="btn btn-outline btn-sm" id="btnDefaultCampaignTexts">Restaurar Padrão</button>
+        </div>
+      </div>
+
+      <div class="section-title">
+        <span>Campanhas Cadastradas</span>
         <button class="btn btn-gold btn-sm" id="btnNewCampaign">+ Nova Campanha</button>
       </div>
       <div id="campaignsList"></div>
@@ -487,7 +518,8 @@
       <div class="section-title">
         <span>Códigos de Acesso</span>
         <div style="display:flex; gap:8px;">
-          <button class="btn btn-blue btn-sm" id="btnBulkCodes">Gerar Lote de Códigos</button>
+          <button class="btn btn-green btn-sm" id="btnEditWhatsapp">💬 Personalizar Mensagem WhatsApp</button>
+          <button class="btn btn-blue btn-sm" id="btnBulkCodes">+ Gerar Lote de Códigos</button>
         </div>
       </div>
 
@@ -548,6 +580,24 @@
     <div class="tab-panel" id="tab-settings">
       <div class="section-title">Configurações do Sistema</div>
       <div class="card">
+        <h3 style="font-size:16px; margin-bottom:8px;">💬 Mensagem do WhatsApp (Envio do Link e Código)</h3>
+        <p style="font-size:13px; color:#94a3b8; margin-bottom:12px;">
+          Esta é a mensagem que será enviada aos clientes quando você clicar no botão verde <strong>"WhatsApp"</strong> de cada código.
+        </p>
+        <div style="margin-bottom:8px;">
+          <span style="font-size:12px; color:#38bdf8; font-weight:600;">Tags disponíveis:</span>
+          <span style="background:#1e293b; color:#fde68a; padding:2px 6px; border-radius:4px; font-size:12px; font-family:monospace; margin-left:4px;">{LINK}</span> <span style="font-size:12px; color:#94a3b8;">(link da roleta)</span>
+          <span style="background:#1e293b; color:#fde68a; padding:2px 6px; border-radius:4px; font-size:12px; font-family:monospace; margin-left:6px;">{CODIGO}</span> <span style="font-size:12px; color:#94a3b8;">(código exclusivo)</span>
+          <span style="background:#1e293b; color:#fde68a; padding:2px 6px; border-radius:4px; font-size:12px; font-family:monospace; margin-left:6px;">{NOME}</span> <span style="font-size:12px; color:#94a3b8;">(nome do cliente)</span>
+        </div>
+        <textarea id="settingsWhatsappText" class="form-input" style="height:140px; font-family:inherit; resize:vertical; margin-bottom:12px; line-height:1.5;"></textarea>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <button class="btn btn-green btn-sm" id="btnSaveWhatsapp">Salvar Mensagem</button>
+          <button class="btn btn-outline btn-sm" id="btnDefaultWhatsapp">Restaurar Mensagem Padrão</button>
+        </div>
+      </div>
+
+      <div class="card">
         <h3 style="font-size:16px; margin-bottom:8px;">Alterar PIN de Acesso</h3>
         <p style="font-size:13px; color:#94a3b8; margin-bottom:12px;">Defina um novo PIN numérico para proteger o painel.</p>
         <div style="display:flex; gap:10px; max-width:320px;">
@@ -564,6 +614,29 @@
     </div>
 
   </main>
+
+  <!-- WhatsApp Message Customization Modal -->
+  <div class="modal-overlay" id="whatsappModal">
+    <div class="modal-content" style="max-width:540px;">
+      <h3 class="modal-title">Personalizar Mensagem do WhatsApp</h3>
+      <p style="font-size:13px; color:#94a3b8; margin-bottom:12px;">
+        Altere o texto que é enviado para o cliente ao clicar no botão do WhatsApp ao lado de qualquer código.
+      </p>
+      <div style="margin-bottom:8px;">
+        <span style="font-size:12px; color:#38bdf8; font-weight:600;">Tags que o sistema preenche sozinho:</span><br>
+        <code style="background:#0f172a; color:#fde68a; padding:2px 6px; border-radius:4px; font-size:12px;">{LINK}</code> = link da roleta &bull;
+        <code style="background:#0f172a; color:#fde68a; padding:2px 6px; border-radius:4px; font-size:12px;">{CODIGO}</code> = código do giro &bull;
+        <code style="background:#0f172a; color:#fde68a; padding:2px 6px; border-radius:4px; font-size:12px;">{NOME}</code> = nome
+      </div>
+      <div class="form-group">
+        <textarea id="modalWhatsappText" class="form-input" style="height:150px; font-family:inherit; resize:vertical; line-height:1.5;"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" id="btnCancelWhatsappModal">Cancelar</button>
+        <button class="btn btn-green" id="btnSaveWhatsappModal">Salvar Mensagem</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Edit Client Modal -->
   <div class="modal-overlay" id="editClientModal">
@@ -592,6 +665,48 @@
     </div>
   </div>
 
+  <!-- Edit/Create Prize Modal -->
+  <div class="modal-overlay" id="prizeModal">
+    <div class="modal-content">
+      <h3 class="modal-title" id="prizeModalTitle">Editar Prêmio</h3>
+      <input type="hidden" id="prizeIdInput">
+      <div class="form-group">
+        <label class="form-label">Nome do Prêmio (aparece na fatia da roleta)</label>
+        <input type="text" id="prizeNameInput" class="form-input" placeholder="Ex: 15% de Desconto, Brinde Especial...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descrição / Instruções para o cliente</label>
+        <input type="text" id="prizeDescInput" class="form-input" placeholder="Ex: Válido em compras acima de R$ 50">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Peso / Probabilidade (Maior número = maior chance de sair)</label>
+        <input type="number" id="prizeWeightInput" class="form-input" min="1" max="100" value="20">
+        <span style="font-size:11px; color:#94a3b8;">Ex: peso 40 tem o dobro de chance de sair que peso 20.</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Controle de Estoque</label>
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <input type="checkbox" id="prizeUnlimitedCheck">
+          <label for="prizeUnlimitedCheck" style="font-size:13px; color:#e2e8f0; cursor:pointer;">Estoque Ilimitado</label>
+        </div>
+        <div id="prizeStockGroup">
+          <input type="number" id="prizeQtyInput" class="form-input" min="0" value="50" placeholder="Quantidade disponível">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cor da Fatia na Roleta</label>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <input type="color" id="prizeColorInput" value="#10B981" style="width:48px; height:40px; border:none; background:none; cursor:pointer;">
+          <span id="prizeColorHexLabel" style="font-size:13px; color:#94a3b8; font-weight:700;">#10B981</span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" id="btnCancelPrize">Cancelar</button>
+        <button class="btn btn-gold" id="btnSavePrize">Salvar Prêmio</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Bulk Codes Modal -->
   <div class="modal-overlay" id="bulkCodesModal">
     <div class="modal-content">
@@ -608,6 +723,7 @@
   </div>
 
   <script>
+    const DEFAULT_WHATSAPP_TEMPLATE = `🎉 Olá! Você ganhou uma tentativa na nossa Roleta da Sorte!\n\n🔗 Acesse: {LINK}\n🎟️ Seu código exclusivo: {CODIGO}\n\nDigite o código acima, gire a roleta e descubra seu prêmio agora mesmo! 🍀`;
     let appData = {};
     let currentAuthToken = sessionStorage.getItem('roleta_admin_auth');
     let currentEditingSpinId = null;
@@ -677,6 +793,26 @@
         renderPrizes();
         renderCodes();
         renderResults();
+
+        // Populate WhatsApp template
+        const currentTpl = appData.whatsappTemplate || DEFAULT_WHATSAPP_TEMPLATE;
+        if (document.getElementById('settingsWhatsappText')) {
+          document.getElementById('settingsWhatsappText').value = currentTpl;
+        }
+
+        // Populate Campaign texts
+        const camp = (appData.campaigns || [])[0];
+        if (camp) {
+          if (document.getElementById('campaignHeadlineInput')) {
+            document.getElementById('campaignHeadlineInput').value = camp.title || 'Gire a Roleta e Ganhe seu Prêmio!';
+          }
+          if (document.getElementById('campaignSubtitleInput')) {
+            document.getElementById('campaignSubtitleInput').value = camp.subtitle || 'Insira seu código exclusivo abaixo para liberar a roleta';
+          }
+          if (document.getElementById('campaignNameInput')) {
+            document.getElementById('campaignNameInput').value = camp.name || 'Promoção Outubro';
+          }
+        }
       } catch (e) {
         console.error(e);
       }
@@ -756,15 +892,20 @@
         const isOutOfStock = !p.unlimitedQuantity && p.quantity <= 0;
         return `
           <tr>
-            <td><div style="width:20px; height:20px; border-radius:50%; background:${p.colorHex};"></div></td>
+            <td><div style="width:24px; height:24px; border-radius:50%; background:${p.colorHex}; border:2px solid rgba(255,255,255,0.2);"></div></td>
             <td>
-              <strong>${p.name}</strong>
-              ${isOutOfStock ? '<span style="color:#f87171; font-size:11px; margin-left:6px; font-weight:700;">ESGOTADO</span>' : ''}
-              <div style="font-size:12px; color:#94a3b8;">${p.description || ''}</div>
+              <strong style="font-size:15px; color:#ffffff;">${p.name}</strong>
+              ${isOutOfStock ? '<span style="background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid #ef4444; font-size:11px; margin-left:6px; font-weight:700; padding:2px 6px; border-radius:4px;">ESGOTADO</span>' : ''}
+              <div style="font-size:12px; color:#94a3b8; margin-top:2px;">${p.description || ''}</div>
             </td>
-            <td><strong>${p.weight}</strong></td>
-            <td>${p.unlimitedQuantity ? 'Ilimitado' : p.quantity}</td>
-            <td>-</td>
+            <td><strong style="color:#fde68a; font-size:15px;">${p.weight}</strong></td>
+            <td>${p.unlimitedQuantity ? '<span style="color:#34d399; font-weight:600;">Ilimitado</span>' : `<span style="font-weight:700;">${p.quantity}</span>`}</td>
+            <td>
+              <div style="display:flex; gap:6px;">
+                <button class="btn btn-blue btn-sm" onclick="openEditPrize(${p.id})">Editar</button>
+                <button class="btn btn-outline btn-sm" style="color:#fca5a5; border-color:#7f1d1d;" onclick="deletePrize(${p.id})">Excluir</button>
+              </div>
+            </td>
           </tr>
         `;
       }).join('');
@@ -782,7 +923,12 @@
 
       tbody.innerHTML = codes.map(c => {
         const publicUrl = window.location.origin + '/roleta';
-        const msg = encodeURIComponent(`🎉 Olá! Você ganhou uma tentativa na nossa Roleta da Sorte!\n\n🔗 Acesse: ${publicUrl}\n🎟️ Seu código exclusivo: ${c.code}\n\nDigite o código acima, gire a roleta e descubra seu prêmio!`);
+        const template = appData.whatsappTemplate || DEFAULT_WHATSAPP_TEMPLATE;
+        const msgText = template
+          .replace(/{LINK}/g, publicUrl)
+          .replace(/{CODIGO}/g, c.code)
+          .replace(/{NOME}/g, c.clientName || 'Cliente');
+        const msg = encodeURIComponent(msgText);
         return `
           <tr>
             <td style="color:#fde68a; font-weight:700;">${c.code}</td>
@@ -867,6 +1013,109 @@
       loadAdminData();
     });
 
+    // Prize Management
+    const prizeModal = document.getElementById('prizeModal');
+    const prizeModalTitle = document.getElementById('prizeModalTitle');
+    const prizeIdInput = document.getElementById('prizeIdInput');
+    const prizeNameInput = document.getElementById('prizeNameInput');
+    const prizeDescInput = document.getElementById('prizeDescInput');
+    const prizeWeightInput = document.getElementById('prizeWeightInput');
+    const prizeUnlimitedCheck = document.getElementById('prizeUnlimitedCheck');
+    const prizeStockGroup = document.getElementById('prizeStockGroup');
+    const prizeQtyInput = document.getElementById('prizeQtyInput');
+    const prizeColorInput = document.getElementById('prizeColorInput');
+    const prizeColorHexLabel = document.getElementById('prizeColorHexLabel');
+
+    prizeColorInput.addEventListener('input', () => {
+      prizeColorHexLabel.textContent = prizeColorInput.value.toUpperCase();
+    });
+
+    prizeUnlimitedCheck.addEventListener('change', () => {
+      prizeStockGroup.style.display = prizeUnlimitedCheck.checked ? 'none' : 'block';
+    });
+
+    window.openNewPrize = function() {
+      prizeModalTitle.textContent = 'Novo Prêmio na Roleta';
+      prizeIdInput.value = '';
+      prizeNameInput.value = '';
+      prizeDescInput.value = '';
+      prizeWeightInput.value = '20';
+      prizeUnlimitedCheck.checked = false;
+      prizeStockGroup.style.display = 'block';
+      prizeQtyInput.value = '50';
+      prizeColorInput.value = '#10B981';
+      prizeColorHexLabel.textContent = '#10B981';
+      prizeModal.classList.add('active');
+    };
+
+    window.openEditPrize = function(prizeId) {
+      const p = (appData.prizes || []).find(x => x.id === prizeId);
+      if (!p) return;
+      prizeModalTitle.textContent = 'Editar Prêmio';
+      prizeIdInput.value = p.id;
+      prizeNameInput.value = p.name;
+      prizeDescInput.value = p.description || '';
+      prizeWeightInput.value = p.weight;
+      prizeUnlimitedCheck.checked = Boolean(p.unlimitedQuantity);
+      prizeStockGroup.style.display = p.unlimitedQuantity ? 'none' : 'block';
+      prizeQtyInput.value = p.quantity;
+      prizeColorInput.value = p.colorHex || '#10B981';
+      prizeColorHexLabel.textContent = (p.colorHex || '#10B981').toUpperCase();
+      prizeModal.classList.add('active');
+    };
+
+    document.getElementById('btnNewPrize').addEventListener('click', openNewPrize);
+    document.getElementById('btnCancelPrize').addEventListener('click', () => {
+      prizeModal.classList.remove('active');
+    });
+
+    document.getElementById('btnSavePrize').addEventListener('click', async () => {
+      const name = prizeNameInput.value.trim();
+      if (!name) return alert('Por favor, informe o nome do prêmio.');
+
+      const payload = {
+        id: prizeIdInput.value ? parseInt(prizeIdInput.value) : null,
+        name,
+        description: prizeDescInput.value.trim(),
+        weight: parseInt(prizeWeightInput.value) || 10,
+        unlimitedQuantity: prizeUnlimitedCheck.checked,
+        quantity: parseInt(prizeQtyInput.value) || 0,
+        colorHex: prizeColorInput.value,
+        campaignId: 1
+      };
+
+      const res = await fetch('/api/admin/prize/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-pin': currentAuthToken },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        prizeModal.classList.remove('active');
+        loadAdminData();
+      } else {
+        alert(data.message || 'Erro ao salvar prêmio.');
+      }
+    });
+
+    window.deletePrize = async function(prizeId) {
+      const p = (appData.prizes || []).find(x => x.id === prizeId);
+      if (!p) return;
+      if (!confirm(`Deseja realmente remover o prêmio "${p.name}" da roleta?`)) return;
+
+      const res = await fetch('/api/admin/prize/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-pin': currentAuthToken },
+        body: JSON.stringify({ id: prizeId })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        loadAdminData();
+      } else {
+        alert(data.message || 'Não foi possível excluir o prêmio.');
+      }
+    };
+
     // CSV Export
     document.getElementById('btnExportCsv').addEventListener('click', () => {
       window.open('/api/admin/export-csv?pin=' + encodeURIComponent(currentAuthToken), '_blank');
@@ -876,6 +1125,84 @@
     document.getElementById('codesSearchInput').addEventListener('input', renderCodes);
     document.getElementById('codeStatusFilter').addEventListener('change', renderCodes);
     document.getElementById('resultsSearchInput').addEventListener('input', renderResults);
+
+    // Campaign Texts Handlers
+    if (document.getElementById('btnSaveCampaignTexts')) {
+      document.getElementById('btnSaveCampaignTexts').addEventListener('click', async () => {
+        const title = document.getElementById('campaignHeadlineInput').value.trim();
+        const subtitle = document.getElementById('campaignSubtitleInput').value.trim();
+        const name = document.getElementById('campaignNameInput').value.trim();
+        if (!title) return alert('A frase principal não pode ficar vazia.');
+
+        const res = await fetch('/api/admin/campaign/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-pin': currentAuthToken },
+          body: JSON.stringify({ id: 1, title, subtitle, name })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          alert('Frases da roleta atualizadas com sucesso!');
+          loadAdminData();
+        } else {
+          alert('Erro ao atualizar frases.');
+        }
+      });
+    }
+
+    if (document.getElementById('btnDefaultCampaignTexts')) {
+      document.getElementById('btnDefaultCampaignTexts').addEventListener('click', () => {
+        document.getElementById('campaignHeadlineInput').value = 'Gire a Roleta e Ganhe seu Prêmio!';
+        document.getElementById('campaignSubtitleInput').value = 'Insira seu código exclusivo abaixo para liberar a roleta';
+      });
+    }
+
+    // WhatsApp Template Handlers
+    const whatsappModal = document.getElementById('whatsappModal');
+    const modalWhatsappText = document.getElementById('modalWhatsappText');
+    const settingsWhatsappText = document.getElementById('settingsWhatsappText');
+
+    document.getElementById('btnEditWhatsapp').addEventListener('click', () => {
+      modalWhatsappText.value = appData.whatsappTemplate || DEFAULT_WHATSAPP_TEMPLATE;
+      whatsappModal.classList.add('active');
+    });
+
+    document.getElementById('btnCancelWhatsappModal').addEventListener('click', () => {
+      whatsappModal.classList.remove('active');
+    });
+
+    async function saveWhatsappTemplate(text) {
+      if (!text.trim()) return alert('A mensagem não pode ficar vazia.');
+      const res = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-pin': currentAuthToken },
+        body: JSON.stringify({ whatsappTemplate: text.trim() })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        appData.whatsappTemplate = text.trim();
+        if (settingsWhatsappText) settingsWhatsappText.value = text.trim();
+        whatsappModal.classList.remove('active');
+        renderCodes();
+        alert('Mensagem do WhatsApp salva com sucesso!');
+      } else {
+        alert('Erro ao salvar mensagem.');
+      }
+    }
+
+    document.getElementById('btnSaveWhatsappModal').addEventListener('click', () => {
+      saveWhatsappTemplate(modalWhatsappText.value);
+    });
+
+    document.getElementById('btnSaveWhatsapp').addEventListener('click', () => {
+      saveWhatsappTemplate(settingsWhatsappText.value);
+    });
+
+    document.getElementById('btnDefaultWhatsapp').addEventListener('click', () => {
+      if (confirm('Deseja restaurar o modelo de mensagem padrão?')) {
+        settingsWhatsappText.value = DEFAULT_WHATSAPP_TEMPLATE;
+        saveWhatsappTemplate(DEFAULT_WHATSAPP_TEMPLATE);
+      }
+    });
 
     // Save PIN
     document.getElementById('btnSavePin').addEventListener('click', async () => {

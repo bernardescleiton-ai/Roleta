@@ -4,6 +4,8 @@
     {
       "id": 1,
       "name": "Promoção Outubro",
+      "title": "Gire a Roleta e Ganhe seu Prêmio!",
+      "subtitle": "Insira seu código exclusivo abaixo para liberar a roleta",
       "slug": "outubro",
       "startDate": 1727827200000,
       "endDate": 1730419200000,

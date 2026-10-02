@@ -363,7 +363,7 @@
   <div class="container">
     <header class="header">
       <div class="badge-logo">★ ROLETA DA SORTE</div>
-      <h1 class="main-title">Gire a Roleta e Ganhe seu Prêmio!</h1>
+      <h1 class="main-title" id="pageMainTitle">Gire a Roleta e Ganhe seu Prêmio!</h1>
       <p class="subtitle" id="campaignSubtitle">Insira seu código exclusivo abaixo para liberar a roleta</p>
     </header>
 
@@ -502,7 +502,14 @@
         const data = await res.json();
         prizes = data.prizes || [];
         if (data.campaign) {
-          document.getElementById('campaignSubtitle').textContent = data.campaign.name;
+          if (data.campaign.title) {
+            document.getElementById('pageMainTitle').textContent = data.campaign.title;
+          }
+          if (data.campaign.subtitle) {
+            document.getElementById('campaignSubtitle').textContent = data.campaign.subtitle;
+          } else {
+            document.getElementById('campaignSubtitle').textContent = data.campaign.name;
+          }
         }
         drawWheel();
       } catch (e) {

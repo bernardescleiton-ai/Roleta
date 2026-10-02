@@ -322,6 +322,88 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // ADMIN API: Save Prize (Create or Update)
+  if (pathname === '/api/admin/prize/save' && method === 'POST') {
+    if (!isAuth(req)) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Unauthorized' }));
+      return;
+    }
+    const body = await parseBody(req);
+    const db = readDb();
+    const id = body.id ? parseInt(body.id) : null;
+    const name = (body.name || '').trim();
+    const description = (body.description || '').trim();
+    const weight = Math.max(1, parseInt(body.weight) || 10);
+    const quantity = parseInt(body.quantity) || 0;
+    const unlimitedQuantity = Boolean(body.unlimitedQuantity);
+    const colorHex = body.colorHex || '#10B981';
+    const campaignId = parseInt(body.campaignId) || 1;
+
+    if (!name) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, message: 'Nome do prêmio é obrigatório.' }));
+      return;
+    }
+
+    if (id) {
+      const pIdx = db.prizes.findIndex(p => p.id === id);
+      if (pIdx !== -1) {
+        db.prizes[pIdx] = {
+          ...db.prizes[pIdx],
+          name,
+          description,
+          weight,
+          quantity,
+          unlimitedQuantity,
+          colorHex
+        };
+      }
+    } else {
+      const newId = (db.prizes.length > 0 ? Math.max(...db.prizes.map(p => p.id)) : 0) + 1;
+      db.prizes.push({
+        id: newId,
+        campaignId,
+        name,
+        description,
+        weight,
+        quantity,
+        unlimitedQuantity,
+        active: true,
+        colorHex
+      });
+    }
+
+    writeDb(db);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ success: true }));
+    return;
+  }
+
+  // ADMIN API: Delete Prize
+  if (pathname === '/api/admin/prize/delete' && method === 'POST') {
+    if (!isAuth(req)) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Unauthorized' }));
+      return;
+    }
+    const body = await parseBody(req);
+    const id = parseInt(body.id);
+    const db = readDb();
+
+    if (db.prizes.length <= 2) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, message: 'A roleta precisa de pelo menos 2 prêmios.' }));
+      return;
+    }
+
+    db.prizes = db.prizes.filter(p => p.id !== id);
+    writeDb(db);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ success: true }));
+    return;
+  }
+
   // 9. ADMIN API: Export CSV
   if (pathname === '/api/admin/export-csv' && method === 'GET') {
     if (!isAuth(req)) {
@@ -350,6 +432,27 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // ADMIN API: Update Campaign Texts (Headline / Subtitle / Name)
+  if (pathname === '/api/admin/campaign/update' && method === 'POST') {
+    if (!isAuth(req)) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Unauthorized' }));
+      return;
+    }
+    const body = await parseBody(req);
+    const db = readDb();
+    const camp = db.campaigns.find(c => c.id === (parseInt(body.id) || 1)) || db.campaigns[0];
+    if (camp) {
+      if (body.name) camp.name = body.name.trim();
+      if (body.title) camp.title = body.title.trim();
+      if (body.subtitle !== undefined) camp.subtitle = body.subtitle.trim();
+      writeDb(db);
+    }
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ success: true, campaign: camp }));
+    return;
+  }
+
   // 10. ADMIN API: Settings PIN
   if (pathname === '/api/admin/settings' && method === 'POST') {
     if (!isAuth(req)) {
@@ -358,16 +461,16 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     const body = await parseBody(req);
+    const db = readDb();
     if (body.adminPin && body.adminPin.length >= 4) {
-      const db = readDb();
       db.adminPin = body.adminPin;
-      writeDb(db);
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ success: true }));
-      return;
     }
-    res.writeHead(400, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ success: false, message: 'PIN inválido' }));
+    if (typeof body.whatsappTemplate === 'string') {
+      db.whatsappTemplate = body.whatsappTemplate;
+    }
+    writeDb(db);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ success: true }));
     return;
   }
 
