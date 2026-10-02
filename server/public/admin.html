@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Administrativo - Roleta da Sorte</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: #0b0f19;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navbar */
+    .navbar {
+      background: #111827;
+      border-bottom: 1px solid #1f2937;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-badge {
+      background: #f59e0b;
+      color: #1e1b4b;
+      font-weight: 900;
+      font-size: 14px;
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+    .brand-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+    .brand-subtitle {
+      font-size: 12px;
+      color: #f59e0b;
+    }
+
+    .btn-logout {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Tabs */
+    .tabs-bar {
+      background: #1e293b;
+      display: flex;
+      gap: 4px;
+      padding: 0 16px;
+      overflow-x: auto;
+      border-bottom: 1px solid #334155;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 14px 16px;
+      cursor: pointer;
+      white-space: nowrap;
+      position: relative;
+      transition: color 0.2s;
+    }
+    .tab-btn:hover {
+      color: #f1f5f9;
+    }
+    .tab-btn.active {
+      color: #f59e0b;
+    }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: #f59e0b;
+      border-radius: 3px 3px 0 0;
+    }
+
+    /* Main Container */
+    .content-area {
+      flex: 1;
+      padding: 20px;
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* Cards & Grids */
+    .grid-kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 18px;
+    }
+    .kpi-title {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 6px;
+    }
+    .kpi-val {
+      font-size: 28px;
+      font-weight: 900;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    /* Tables */
+    .table-wrapper {
+      overflow-x: auto;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 14px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 14px;
+    }
+    th {
+      background: #0f172a;
+      padding: 12px 16px;
+      color: #94a3b8;
+      font-weight: 600;
+      border-bottom: 1px solid #334155;
+    }
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #263346;
+      color: #e2e8f0;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Badges */
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .status-disponivel {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+    .status-utilizado {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fde68a;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: filter 0.2s;
+    }
+    .btn:hover {
+      filter: brightness(1.1);
+    }
+    .btn-gold {
+      background: #f59e0b;
+      color: #1e1b4b;
+    }
+    .btn-blue {
+      background: #3b82f6;
+      color: #ffffff;
+    }
+    .btn-green {
+      background: #10b981;
+      color: #ffffff;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #475569;
+      color: #e2e8f0;
+    }
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 12px;
+      border-radius: 6px;
+    }
+
+    /* Search & Filters */
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .search-input {
+      flex: 1;
+      min-width: 220px;
+      background: #0f172a;
+      border: 1px solid #475569;
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #ffffff;
+      outline: none;
+      font-size: 14px;
+    }
+    .search-input:focus {
+      border-color: #f59e0b;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 200;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s;
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .modal-content {
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 16px;
+      padding: 24px;
+      width: 100%;
+      max-width: 440px;
+    }
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-label {
+      display: block;
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .form-input {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid #475569;
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: #ffffff;
+      font-size: 14px;
+      outline: none;
+    }
+    .form-input:focus {
+      border-color: #f59e0b;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    /* Login Screen */
+    #loginScreen {
+      position: fixed;
+      inset: 0;
+      background: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 20px;
+    }
+    .login-box {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 20px;
+      padding: 32px 24px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+    .login-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .login-desc {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login Modal -->
+  <div id="loginScreen">
+    <div class="login-box">
+      <div class="brand-badge" style="display:inline-block; margin-bottom:12px;">🛡️ ACESSO RESTRITO</div>
+      <h2 class="login-title">Painel Administrativo</h2>
+      <p class="login-desc">Digite o PIN do administrador para continuar (padrão: 1234).</p>
+      <div class="form-group">
+        <input type="password" id="loginPin" class="form-input" placeholder="PIN (ex: 1234)" style="text-align:center; font-size:20px; letter-spacing:4px;" maxlength="10">
+      </div>
+      <button class="btn btn-gold" id="btnLogin" style="width:100%; justify-content:center;">ENTRAR NO PAINEL</button>
+      <p id="loginError" style="color:#f87171; font-size:13px; margin-top:10px; display:none;">PIN incorreto. Tente novamente.</p>
+    </div>
+  </div>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="brand">
+      <span class="brand-badge">ADMIN</span>
+      <div>
+        <div class="brand-title">Painel de Controle</div>
+        <div class="brand-subtitle" id="navCampaignLabel">Campanha: Carregando...</div>
+      </div>
+    </div>
+    <button class="btn-logout" id="btnLogout">Sair</button>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="tabs-bar">
+    <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+    <button class="tab-btn" data-tab="campaigns">Campanhas</button>
+    <button class="tab-btn" data-tab="prizes">Prêmios</button>
+    <button class="tab-btn" data-tab="codes">Códigos de Acesso</button>
+    <button class="tab-btn" data-tab="results">Resultados</button>
+    <button class="tab-btn" data-tab="settings">Configurações</button>
+  </nav>
+
+  <!-- Content Panels -->
+  <main class="content-area">
+
+    <!-- 1. DASHBOARD -->
+    <div class="tab-panel active" id="tab-dashboard">
+      <div class="grid-kpis">
+        <div class="kpi-card">
+          <div class="kpi-title">Total de Códigos</div>
+          <div class="kpi-val" id="kpiTotalCodes" style="color:#3b82f6;">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Códigos Disponíveis</div>
+          <div class="kpi-val" id="kpiAvailableCodes" style="color:#10b981;">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Códigos Utilizados</div>
+          <div class="kpi-val" id="kpiUsedCodes" style="color:#f59e0b;">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-title">Giros Realizados</div>
+          <div class="kpi-val" id="kpiTotalSpins" style="color:#8b5cf6;">0</div>
+        </div>
+      </div>
+
+      <div class="section-title">Distribuição dos Prêmios Sorteados</div>
+      <div class="card" id="prizeDistributionCard">Carregando dados...</div>
+
+      <div class="section-title">Últimos Giros Registrados</div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Prêmio</th>
+              <th>Cliente</th>
+              <th>Data/Hora</th>
+            </tr>
+          </thead>
+          <tbody id="recentSpinsTableBody">
+            <tr><td colspan="4" style="text-align:center;">Nenhum giro ainda.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 2. CAMPAIGNS -->
+    <div class="tab-panel" id="tab-campaigns">
+      <div class="section-title">
+        <span>Campanhas Promocionais</span>
+        <button class="btn btn-gold btn-sm" id="btnNewCampaign">+ Nova Campanha</button>
+      </div>
+      <div id="campaignsList"></div>
+    </div>
+
+    <!-- 3. PRIZES -->
+    <div class="tab-panel" id="tab-prizes">
+      <div class="section-title">
+        <span>Prêmios & Probabilidades da Roleta</span>
+        <button class="btn btn-gold btn-sm" id="btnNewPrize">+ Novo Prêmio</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Cor</th>
+              <th>Nome do Prêmio</th>
+              <th>Peso (Prob.)</th>
+              <th>Estoque</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="prizesTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 4. CODES -->
+    <div class="tab-panel" id="tab-codes">
+      <div class="section-title">
+        <span>Códigos de Acesso</span>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-blue btn-sm" id="btnBulkCodes">Gerar Lote de Códigos</button>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <input type="text" id="codesSearchInput" class="search-input" placeholder="Buscar código ou cliente...">
+        <select id="codeStatusFilter" class="form-input" style="width:160px;">
+          <option value="ALL">Todos os status</option>
+          <option value="DISPONIVEL">Disponíveis</option>
+          <option value="UTILIZADO">Utilizados</option>
+        </select>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Status</th>
+              <th>Prêmio Ganho</th>
+              <th>Cliente</th>
+              <th>Ações (WhatsApp)</th>
+            </tr>
+          </thead>
+          <tbody id="codesTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 5. RESULTS -->
+    <div class="tab-panel" id="tab-results">
+      <div class="section-title">
+        <span>Resultados & Identificação de Clientes</span>
+        <button class="btn btn-green btn-sm" id="btnExportCsv">⬇ Exportar CSV</button>
+      </div>
+
+      <div class="toolbar">
+        <input type="text" id="resultsSearchInput" class="search-input" placeholder="Pesquisar código, cliente ou prêmio...">
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Cliente</th>
+              <th>Prêmio Sorteado</th>
+              <th>Data/Hora</th>
+              <th>Observação</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody id="resultsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 6. SETTINGS -->
+    <div class="tab-panel" id="tab-settings">
+      <div class="section-title">Configurações do Sistema</div>
+      <div class="card">
+        <h3 style="font-size:16px; margin-bottom:8px;">Alterar PIN de Acesso</h3>
+        <p style="font-size:13px; color:#94a3b8; margin-bottom:12px;">Defina um novo PIN numérico para proteger o painel.</p>
+        <div style="display:flex; gap:10px; max-width:320px;">
+          <input type="password" id="newPinInput" class="form-input" placeholder="Novo PIN (ex: 4321)" maxlength="8">
+          <button class="btn btn-blue btn-sm" id="btnSavePin">Salvar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size:16px; margin-bottom:8px;">Redefinir Dados de Exemplo</h3>
+        <p style="font-size:13px; color:#94a3b8; margin-bottom:12px;">Recarrega prêmios padrão e códigos de teste.</p>
+        <button class="btn btn-gold btn-sm" id="btnResetData">Recarregar Demonstração</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Edit Client Modal -->
+  <div class="modal-overlay" id="editClientModal">
+    <div class="modal-content">
+      <h3 class="modal-title">Identificar Cliente</h3>
+      <div class="form-group">
+        <label class="form-label">Código</label>
+        <input type="text" id="editClientCode" class="form-input" readonly style="color:#fde68a;">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Prêmio Sorteado</label>
+        <input type="text" id="editClientPrize" class="form-input" readonly style="color:#34d399;">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nome do Cliente</label>
+        <input type="text" id="editClientName" class="form-input" placeholder="Ex: João da Silva">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Observação</label>
+        <input type="text" id="editClientObs" class="form-input" placeholder="Ex: Cliente da loja física">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" id="btnCancelEditClient">Cancelar</button>
+        <button class="btn btn-gold" id="btnSaveEditClient">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Codes Modal -->
+  <div class="modal-overlay" id="bulkCodesModal">
+    <div class="modal-content">
+      <h3 class="modal-title">Gerar Novos Códigos em Lote</h3>
+      <div class="form-group">
+        <label class="form-label">Quantidade de Códigos</label>
+        <input type="number" id="bulkCountInput" class="form-input" value="50" min="1" max="500">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" id="btnCancelBulk">Cancelar</button>
+        <button class="btn btn-gold" id="btnConfirmBulk">Gerar Códigos</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let appData = {};
+    let currentAuthToken = sessionStorage.getItem('roleta_admin_auth');
+    let currentEditingSpinId = null;
+
+    // Login Handling
+    const loginScreen = document.getElementById('loginScreen');
+    const loginPin = document.getElementById('loginPin');
+    const btnLogin = document.getElementById('btnLogin');
+    const loginError = document.getElementById('loginError');
+
+    if (currentAuthToken) {
+      loginScreen.style.display = 'none';
+      loadAdminData();
+    }
+
+    btnLogin.addEventListener('click', async () => {
+      const pin = loginPin.value.trim();
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pin })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          sessionStorage.setItem('roleta_admin_auth', pin);
+          currentAuthToken = pin;
+          loginScreen.style.display = 'none';
+          loadAdminData();
+        } else {
+          loginError.style.display = 'block';
+        }
+      } catch (e) {
+        loginError.style.display = 'block';
+      }
+    });
+
+    document.getElementById('btnLogout').addEventListener('click', () => {
+      sessionStorage.removeItem('roleta_admin_auth');
+      window.location.reload();
+    });
+
+    // Tab Navigation
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+      });
+    });
+
+    // Fetch and render data
+    async function loadAdminData() {
+      try {
+        const res = await fetch('/api/admin/data', {
+          headers: { 'x-admin-pin': currentAuthToken }
+        });
+        if (res.status === 401) {
+          sessionStorage.removeItem('roleta_admin_auth');
+          loginScreen.style.display = 'flex';
+          return;
+        }
+        appData = await res.json();
+        renderDashboard();
+        renderCampaigns();
+        renderPrizes();
+        renderCodes();
+        renderResults();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function renderDashboard() {
+      const codes = appData.accessCodes || [];
+      const spins = appData.spins || [];
+      const totalCodes = codes.length;
+      const usedCodes = codes.filter(c => c.status === 'UTILIZADO').length;
+      const availableCodes = codes.filter(c => c.status === 'DISPONIVEL').length;
+
+      document.getElementById('kpiTotalCodes').textContent = totalCodes;
+      document.getElementById('kpiAvailableCodes').textContent = availableCodes;
+      document.getElementById('kpiUsedCodes').textContent = usedCodes;
+      document.getElementById('kpiTotalSpins').textContent = spins.length;
+
+      const camp = (appData.campaigns || [])[0];
+      if (camp) {
+        document.getElementById('navCampaignLabel').textContent = `Campanha: ${camp.name}`;
+      }
+
+      // Prize breakdown
+      const countMap = {};
+      spins.forEach(s => {
+        countMap[s.prizeName] = (countMap[s.prizeName] || 0) + 1;
+      });
+
+      const distCard = document.getElementById('prizeDistributionCard');
+      if (Object.keys(countMap).length === 0) {
+        distCard.innerHTML = '<span style="color:#94a3b8;">Nenhum prêmio distribuído ainda.</span>';
+      } else {
+        distCard.innerHTML = Object.entries(countMap).map(([name, count]) => `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #334155;">
+            <span style="font-weight:600;">${name}</span>
+            <span style="background:rgba(16,185,129,0.2); color:#34d399; padding:4px 10px; border-radius:6px; font-weight:700;">${count} entregue(s)</span>
+          </div>
+        `).join('');
+      }
+
+      // Recent spins table
+      const tbody = document.getElementById('recentSpinsTableBody');
+      const recent = spins.slice(-5).reverse();
+      if (recent.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">Nenhum giro registrado.</td></tr>';
+      } else {
+        tbody.innerHTML = recent.map(s => `
+          <tr>
+            <td style="color:#fde68a; font-weight:700;">${s.code}</td>
+            <td style="color:#34d399; font-weight:600;">${s.prizeName}</td>
+            <td>${s.clientName || 'Não informado'}</td>
+            <td style="color:#94a3b8;">${new Date(s.createdAt).toLocaleString('pt-BR')}</td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    function renderCampaigns() {
+      const list = document.getElementById('campaignsList');
+      const campaigns = appData.campaigns || [];
+      list.innerHTML = campaigns.map(c => `
+        <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <h4 style="font-size:16px; font-weight:700;">${c.name}</h4>
+            <div style="font-size:13px; color:#f59e0b; margin-top:2px;">Link: /roleta/${c.slug}</div>
+            <div style="font-size:12px; color:#94a3b8; margin-top:4px;">Status: ${c.active ? 'Ativa' : 'Inativa'}</div>
+          </div>
+          <span class="status-badge ${c.active ? 'status-disponivel' : 'status-utilizado'}">${c.active ? 'ATIVA' : 'INATIVA'}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderPrizes() {
+      const tbody = document.getElementById('prizesTableBody');
+      const prizes = appData.prizes || [];
+      tbody.innerHTML = prizes.map(p => {
+        const isOutOfStock = !p.unlimitedQuantity && p.quantity <= 0;
+        return `
+          <tr>
+            <td><div style="width:20px; height:20px; border-radius:50%; background:${p.colorHex};"></div></td>
+            <td>
+              <strong>${p.name}</strong>
+              ${isOutOfStock ? '<span style="color:#f87171; font-size:11px; margin-left:6px; font-weight:700;">ESGOTADO</span>' : ''}
+              <div style="font-size:12px; color:#94a3b8;">${p.description || ''}</div>
+            </td>
+            <td><strong>${p.weight}</strong></td>
+            <td>${p.unlimitedQuantity ? 'Ilimitado' : p.quantity}</td>
+            <td>-</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderCodes() {
+      const tbody = document.getElementById('codesTableBody');
+      const q = document.getElementById('codesSearchInput').value.toLowerCase().trim();
+      const status = document.getElementById('codeStatusFilter').value;
+      const codes = (appData.accessCodes || []).filter(c => {
+        const matchQ = !q || c.code.toLowerCase().includes(q) || (c.clientName && c.clientName.toLowerCase().includes(q));
+        const matchS = status === 'ALL' || c.status === status;
+        return matchQ && matchS;
+      });
+
+      tbody.innerHTML = codes.map(c => {
+        const publicUrl = window.location.origin + '/roleta';
+        const msg = encodeURIComponent(`🎉 Olá! Você ganhou uma tentativa na nossa Roleta da Sorte!\n\n🔗 Acesse: ${publicUrl}\n🎟️ Seu código exclusivo: ${c.code}\n\nDigite o código acima, gire a roleta e descubra seu prêmio!`);
+        return `
+          <tr>
+            <td style="color:#fde68a; font-weight:700;">${c.code}</td>
+            <td><span class="status-badge ${c.status === 'DISPONIVEL' ? 'status-disponivel' : 'status-utilizado'}">${c.status}</span></td>
+            <td style="color:#34d399;">${c.prizeName || '-'}</td>
+            <td>${c.clientName || 'Não informado'}</td>
+            <td>
+              <a href="https://api.whatsapp.com/send?text=${msg}" target="_blank" class="btn btn-green btn-sm" style="text-decoration:none;">
+                WhatsApp
+              </a>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderResults() {
+      const tbody = document.getElementById('resultsTableBody');
+      const q = document.getElementById('resultsSearchInput').value.toLowerCase().trim();
+      const spins = (appData.spins || []).filter(s => {
+        return !q || s.code.toLowerCase().includes(q) || (s.clientName && s.clientName.toLowerCase().includes(q)) || s.prizeName.toLowerCase().includes(q);
+      });
+
+      tbody.innerHTML = spins.map(s => `
+        <tr>
+          <td style="color:#fde68a; font-weight:700;">${s.code}</td>
+          <td><strong>${s.clientName || 'Não informado'}</strong></td>
+          <td style="color:#34d399; font-weight:700;">${s.prizeName}</td>
+          <td style="color:#94a3b8; font-size:12px;">${new Date(s.createdAt).toLocaleString('pt-BR')}</td>
+          <td style="color:#cbd5e1; font-size:13px;">${s.observation || '-'}</td>
+          <td>
+            <button class="btn btn-blue btn-sm" onclick="openEditClient(${s.id})">Editar Cliente</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Edit Client dialog
+    window.openEditClient = function(spinId) {
+      const spin = appData.spins.find(s => s.id === spinId);
+      if (!spin) return;
+      currentEditingSpinId = spinId;
+      document.getElementById('editClientCode').value = spin.code;
+      document.getElementById('editClientPrize').value = spin.prizeName;
+      document.getElementById('editClientName').value = spin.clientName === 'Não informado' ? '' : (spin.clientName || '');
+      document.getElementById('editClientObs').value = spin.observation || '';
+      document.getElementById('editClientModal').classList.add('active');
+    };
+
+    document.getElementById('btnCancelEditClient').addEventListener('click', () => {
+      document.getElementById('editClientModal').classList.remove('active');
+    });
+
+    document.getElementById('btnSaveEditClient').addEventListener('click', async () => {
+      const name = document.getElementById('editClientName').value.trim();
+      const obs = document.getElementById('editClientObs').value.trim();
+
+      await fetch('/api/admin/spin/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-pin': currentAuthToken },
+        body: JSON.stringify({ spinId: currentEditingSpinId, clientName: name, observation: obs })
+      });
+      document.getElementById('editClientModal').classList.remove('active');
+      loadAdminData();
+    });
+
+    // Bulk codes modal
+    document.getElementById('btnBulkCodes').addEventListener('click', () => {
+      document.getElementById('bulkCodesModal').classList.add('active');
+    });
+    document.getElementById('btnCancelBulk').addEventListener('click', () => {
+      document.getElementById('bulkCodesModal').classList.remove('active');
+    });
+    document.getElementById('btnConfirmBulk').addEventListener('click', async () => {
+      const count = parseInt(document.getElementById('bulkCountInput').value) || 50;
+      await fetch('/api/admin/codes/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-pin': currentAuthToken },
+        body: JSON.stringify({ count, campaignId: 1 })
+      });
+      document.getElementById('bulkCodesModal').classList.remove('active');
+      loadAdminData();
+    });
+
+    // CSV Export
+    document.getElementById('btnExportCsv').addEventListener('click', () => {
+      window.open('/api/admin/export-csv?pin=' + encodeURIComponent(currentAuthToken), '_blank');
+    });
+
+    // Filter listeners
+    document.getElementById('codesSearchInput').addEventListener('input', renderCodes);
+    document.getElementById('codeStatusFilter').addEventListener('change', renderCodes);
+    document.getElementById('resultsSearchInput').addEventListener('input', renderResults);
+
+    // Save PIN
+    document.getElementById('btnSavePin').addEventListener('click', async () => {
+      const p = document.getElementById('newPinInput').value.trim();
+      if (p.length < 4) return alert('O PIN deve ter no mínimo 4 caracteres.');
+      await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-pin': currentAuthToken },
+        body: JSON.stringify({ adminPin: p })
+      });
+      sessionStorage.setItem('roleta_admin_auth', p);
+      currentAuthToken = p;
+      alert('PIN atualizado com sucesso!');
+    });
+
+    // Reset Demo
+    document.getElementById('btnResetData').addEventListener('click', async () => {
+      if (!confirm('Deseja recarregar os dados de exemplo?')) return;
+      await fetch('/api/admin/reset-demo', {
+        method: 'POST',
+        headers: { 'x-admin-pin': currentAuthToken }
+      });
+      loadAdminData();
+      alert('Dados de demonstração recarregados com sucesso!');
+    });
+  </script>
+</body>
+</html>

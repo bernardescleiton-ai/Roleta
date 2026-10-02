@@ -1,0 +1,8 @@
+{
+  "name": "Roleta da Sorte",
+  "description": "Aplicação completa de roleta promocional com código único de acesso, sorteio ponderado por probabilidade, controle de estoque e painel administrativo.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

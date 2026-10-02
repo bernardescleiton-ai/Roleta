@@ -1,0 +1,168 @@
+{
+  "adminPin": "1234",
+  "campaigns": [
+    {
+      "id": 1,
+      "name": "Promoção Outubro",
+      "slug": "outubro",
+      "startDate": 1727827200000,
+      "endDate": 1730419200000,
+      "active": true,
+      "createdAt": 1727827200000
+    }
+  ],
+  "prizes": [
+    {
+      "id": 1,
+      "campaignId": 1,
+      "name": "5% de Desconto",
+      "description": "Válido em compras acima de R$ 50",
+      "weight": 40,
+      "quantity": 500,
+      "unlimitedQuantity": false,
+      "active": true,
+      "colorHex": "#10B981"
+    },
+    {
+      "id": 2,
+      "campaignId": 1,
+      "name": "10% de Desconto",
+      "description": "Válido para qualquer item da loja",
+      "weight": 30,
+      "quantity": 199,
+      "unlimitedQuantity": false,
+      "active": true,
+      "colorHex": "#2563EB"
+    },
+    {
+      "id": 3,
+      "campaignId": 1,
+      "name": "15% de Desconto",
+      "description": "Válido para produtos selecionados",
+      "weight": 20,
+      "quantity": 50,
+      "unlimitedQuantity": false,
+      "active": true,
+      "colorHex": "#8B5CF6"
+    },
+    {
+      "id": 4,
+      "campaignId": 1,
+      "name": "20% de Desconto",
+      "description": "Desconto especial de cliente fiel",
+      "weight": 8,
+      "quantity": 20,
+      "unlimitedQuantity": false,
+      "active": true,
+      "colorHex": "#F59E0B"
+    },
+    {
+      "id": 5,
+      "campaignId": 1,
+      "name": "50% de Desconto",
+      "description": "Super prêmio da sorte!",
+      "weight": 2,
+      "quantity": 5,
+      "unlimitedQuantity": false,
+      "active": true,
+      "colorHex": "#EF4444"
+    },
+    {
+      "id": 6,
+      "campaignId": 1,
+      "name": "Brinde Especial",
+      "description": "Retire no balcão da loja física",
+      "weight": 10,
+      "quantity": 30,
+      "unlimitedQuantity": false,
+      "active": true,
+      "colorHex": "#EC4899"
+    }
+  ],
+  "accessCodes": [
+    {
+      "id": 1,
+      "campaignId": 1,
+      "code": "ROULET-8K42P",
+      "status": "UTILIZADO",
+      "usedAt": 1790961035993,
+      "prizeId": 2,
+      "prizeName": "10% de Desconto",
+      "clientName": "",
+      "observation": "",
+      "createdAt": 1727827200000
+    },
+    {
+      "id": 2,
+      "campaignId": 1,
+      "code": "RLT-7X92KP",
+      "status": "DISPONIVEL",
+      "usedAt": null,
+      "prizeId": null,
+      "prizeName": null,
+      "clientName": "",
+      "observation": "",
+      "createdAt": 1727827200000
+    },
+    {
+      "id": 3,
+      "campaignId": 1,
+      "code": "RLT-4M8Q2A",
+      "status": "DISPONIVEL",
+      "usedAt": null,
+      "prizeId": null,
+      "prizeName": null,
+      "clientName": "",
+      "observation": "",
+      "createdAt": 1727827200000
+    },
+    {
+      "id": 4,
+      "campaignId": 1,
+      "code": "RLT-9ZK31B",
+      "status": "DISPONIVEL",
+      "usedAt": null,
+      "prizeId": null,
+      "prizeName": null,
+      "clientName": "",
+      "observation": "",
+      "createdAt": 1727827200000
+    },
+    {
+      "id": 5,
+      "campaignId": 1,
+      "code": "ROULET-USED01",
+      "status": "UTILIZADO",
+      "usedAt": 1727823600000,
+      "prizeId": 2,
+      "prizeName": "10% de Desconto",
+      "clientName": "Maria Oliveira",
+      "observation": "Cliente da loja física",
+      "createdAt": 1727820000000
+    }
+  ],
+  "spins": [
+    {
+      "id": 1,
+      "campaignId": 1,
+      "accessCodeId": 5,
+      "code": "ROULET-USED01",
+      "prizeId": 2,
+      "prizeName": "10% de Desconto",
+      "clientName": "Maria Oliveira",
+      "observation": "Cliente da loja física",
+      "createdAt": 1727823600000
+    },
+    {
+      "id": 2,
+      "campaignId": 1,
+      "accessCodeId": 1,
+      "code": "ROULET-8K42P",
+      "prizeId": 2,
+      "prizeName": "10% de Desconto",
+      "clientName": "Não informado",
+      "observation": "",
+      "createdAt": 1790961035993
+    }
+  ]
+}

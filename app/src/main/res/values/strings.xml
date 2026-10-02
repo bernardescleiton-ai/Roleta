@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Roleta da Sorte</string>
+    <string name="title_spin_wheel">Gire a Roleta e Ganhe seu Prêmio!</string>
+    <string name="subtitle_enter_code">Digite seu código para liberar sua tentativa.</string>
+    <string name="placeholder_code">Ex: RLT-8K42P</string>
+    <string name="btn_unlock_wheel">LIBERAR ROLETA</string>
+    <string name="btn_spin_wheel">GIRAR A ROLETA</string>
+    <string name="code_validated">Código validado! Você tem 1 giro disponível.</string>
+    <string name="code_already_used">Este código já foi utilizado.</string>
+    <string name="code_invalid">Código inválido. Verifique o código informado.</string>
+    <string name="campaign_unavailable">Esta roleta não está disponível no momento.</string>
+    <string name="congratulations">🎉 PARABÉNS! 🎉</string>
+    <string name="you_won">Você ganhou:</string>
+    <string name="prize_recorded_success">Seu prêmio foi registrado com sucesso.</string>
+    <string name="code_used_label">Código utilizado: %1$s</string>
+    <string name="admin_panel">Painel Administrativo</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="campaigns">Campanhas</string>
+    <string name="prizes">Prêmios</string>
+    <string name="access_codes">Códigos de Acesso</string>
+    <string name="results">Resultados</string>
+    <string name="settings">Configurações</string>
+    <string name="export_csv">Exportar CSV</string>
+    <string name="generate_new_codes">Gerar novos códigos</string>
+</resources>
