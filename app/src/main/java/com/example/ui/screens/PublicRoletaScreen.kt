@@ -154,6 +154,17 @@ fun PublicRoletaScreen(
                         }
                     },
                     actions = {
+                        IconButton(
+                            onClick = onNavigateToAdmin,
+                            modifier = Modifier.testTag("admin_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.AdminPanelSettings,
+                                contentDescription = "Painel Admin",
+                                tint = Color(0xFFF59E0B)
+                            )
+                        }
+
                         // Campaign switch menu if multiple campaigns exist
                         if (uiState.allCampaigns.size > 1) {
                             Box {
