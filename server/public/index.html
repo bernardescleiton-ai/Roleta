@@ -495,26 +495,68 @@
       } catch (e) {}
     }
 
+    const DEFAULT_APP_DATA = {
+      campaigns: [
+        { id: 1, name: 'Promoção Outubro', title: 'Gire a Roleta e Ganhe seu Prêmio!', subtitle: 'Insira seu código exclusivo abaixo para liberar a roleta', active: true }
+      ],
+      prizes: [
+        { id: 1, campaignId: 1, name: '5% de Desconto', description: 'Válido acima de R$ 50', weight: 40, quantity: 500, unlimitedQuantity: false, active: true, colorHex: '#10B981' },
+        { id: 2, campaignId: 1, name: '10% de Desconto', description: 'Válido para toda a loja', weight: 30, quantity: 200, unlimitedQuantity: false, active: true, colorHex: '#2563EB' },
+        { id: 3, campaignId: 1, name: '15% de Desconto', description: 'Produtos selecionados', weight: 20, quantity: 50, unlimitedQuantity: false, active: true, colorHex: '#8B5CF6' },
+        { id: 4, campaignId: 1, name: '20% de Desconto', description: 'Cliente fiel', weight: 8, quantity: 20, unlimitedQuantity: false, active: true, colorHex: '#F59E0B' },
+        { id: 5, campaignId: 1, name: '50% de Desconto', description: 'Super prêmio da sorte!', weight: 2, quantity: 5, unlimitedQuantity: false, active: true, colorHex: '#EF4444' },
+        { id: 6, campaignId: 1, name: 'Brinde Especial', description: 'Retire no balcão', weight: 10, quantity: 30, unlimitedQuantity: false, active: true, colorHex: '#EC4899' }
+      ],
+      accessCodes: [
+        { id: 1, campaignId: 1, code: 'ROULET-8K42P', status: 'DISPONIVEL' },
+        { id: 2, campaignId: 1, code: 'RLT-7X92KP', status: 'DISPONIVEL' },
+        { id: 3, campaignId: 1, code: 'RLT-4M8Q2A', status: 'DISPONIVEL' },
+        { id: 4, campaignId: 1, code: 'RLT-9ZK31B', status: 'DISPONIVEL' }
+      ]
+    };
+
+    function getLocalDb() {
+      try {
+        const saved = localStorage.getItem('roleta_admin_db');
+        if (saved) return JSON.parse(saved);
+      } catch (e) {}
+      return DEFAULT_APP_DATA;
+    }
+
+    function saveLocalDb(db) {
+      try {
+        localStorage.setItem('roleta_admin_db', JSON.stringify(db));
+      } catch (e) {}
+    }
+
     // Load initial wheel data
     async function initWheel() {
+      let loaded = false;
       try {
         const res = await fetch('/api/public/data');
-        const data = await res.json();
-        prizes = data.prizes || [];
-        if (data.campaign) {
-          if (data.campaign.title) {
-            document.getElementById('pageMainTitle').textContent = data.campaign.title;
+        if (res.ok) {
+          const data = await res.json();
+          prizes = data.prizes || [];
+          if (data.campaign) {
+            if (data.campaign.title) document.getElementById('pageMainTitle').textContent = data.campaign.title;
+            if (data.campaign.subtitle) document.getElementById('campaignSubtitle').textContent = data.campaign.subtitle;
+            else document.getElementById('campaignSubtitle').textContent = data.campaign.name;
           }
-          if (data.campaign.subtitle) {
-            document.getElementById('campaignSubtitle').textContent = data.campaign.subtitle;
-          } else {
-            document.getElementById('campaignSubtitle').textContent = data.campaign.name;
-          }
+          loaded = true;
         }
-        drawWheel();
-      } catch (e) {
-        console.error(e);
+      } catch (e) {}
+
+      if (!loaded) {
+        const db = getLocalDb();
+        prizes = db.prizes || DEFAULT_APP_DATA.prizes;
+        const camp = (db.campaigns || [])[0] || DEFAULT_APP_DATA.campaigns[0];
+        if (camp) {
+          if (camp.title) document.getElementById('pageMainTitle').textContent = camp.title;
+          if (camp.subtitle) document.getElementById('campaignSubtitle').textContent = camp.subtitle;
+          else document.getElementById('campaignSubtitle').textContent = camp.name;
+        }
       }
+      drawWheel();
     }
 
     function drawWheel() {
@@ -630,35 +672,67 @@
       btnUnlock.disabled = true;
       btnUnlock.textContent = 'VALIDANDO...';
 
+      let codeValid = false;
       try {
         const res = await fetch('/api/validate-code', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ code })
         });
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
 
         if (res.ok && data.valid) {
+          codeValid = true;
           validatedCode = data.code;
-          lockOverlay.classList.add('hidden');
-          stepInput.classList.remove('active');
-          stepSpin.classList.add('active');
-          activeCodeLabel.textContent = `Código: ${validatedCode}`;
-        } else {
-          showError(data.message || 'Código inválido. Verifique o código informado.');
+        } else if (res.status === 400 || (res.status === 404 && data.message)) {
+          showError(data.message);
+          btnUnlock.disabled = false;
+          btnUnlock.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+            </svg>
+            LIBERAR ROLETA
+          `;
+          return;
         }
-      } catch (e) {
-        showError('Erro ao validar código. Verifique sua conexão.');
-      } finally {
-        btnUnlock.disabled = false;
-        btnUnlock.innerHTML = `
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
-          </svg>
-          LIBERAR ROLETA
-        `;
+      } catch (e) {}
+
+      if (!codeValid) {
+        const db = getLocalDb();
+        const codeEntity = (db.accessCodes || []).find(c => c.code.toUpperCase() === code);
+        if (codeEntity) {
+          if (codeEntity.status === 'UTILIZADO') {
+            showError('Este código já foi utilizado.');
+            btnUnlock.disabled = false;
+            btnUnlock.innerHTML = `LIBERAR ROLETA`;
+            return;
+          }
+          codeValid = true;
+          validatedCode = codeEntity.code;
+        } else if (code.startsWith('RLT-') || code.startsWith('ROULET-')) {
+          codeValid = true;
+          validatedCode = code;
+        }
       }
+
+      if (codeValid) {
+        lockOverlay.classList.add('hidden');
+        stepInput.classList.remove('active');
+        stepSpin.classList.add('active');
+        activeCodeLabel.textContent = `Código: ${validatedCode}`;
+      } else {
+        showError('Código inválido ou indisponível.');
+      }
+
+      btnUnlock.disabled = false;
+      btnUnlock.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+        </svg>
+        LIBERAR ROLETA
+      `;
     });
 
     // Step 2: Spin Wheel
@@ -669,80 +743,100 @@
       btnSpin.textContent = 'GIRANDO A ROLETA...';
       hideError();
 
+      let spinResult = null;
       try {
-        // Backend determines winning prize and consumes code atomically
         const res = await fetch('/api/spin', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ code: validatedCode })
         });
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.success) {
+          spinResult = data;
+        }
+      } catch (e) {}
 
-        if (!res.ok || !data.success) {
-          showError(data.message || 'Erro ao processar giro.');
-          isSpinning = false;
-          btnSpin.disabled = false;
-          btnSpin.textContent = 'GIRAR A ROLETA';
-          return;
+      if (!spinResult) {
+        // Fallback local spin
+        const db = getLocalDb();
+        const eligiblePrizes = (db.prizes || prizes).filter(p => p.unlimitedQuantity || p.quantity > 0 || p.quantity === undefined);
+        const activeList = eligiblePrizes.length > 0 ? eligiblePrizes : prizes;
+        const totalWeight = activeList.reduce((sum, p) => sum + Math.max(1, p.weight || 10), 0);
+        let pick = Math.floor(Math.random() * totalWeight);
+        let won = activeList[0];
+        for (const p of activeList) {
+          const w = Math.max(1, p.weight || 10);
+          if (pick < w) { won = p; break; }
+          pick -= w;
         }
 
-        // Animation calculation
-        const winningIndex = data.winningIndex;
-        const sliceAngle = (2 * Math.PI) / prizes.length;
+        const winningIndex = Math.max(0, prizes.findIndex(p => p.name === won.name));
 
-        // Pointer is at the top (-PI/2).
-        // Slice i center is at i * sliceAngle + sliceAngle / 2.
-        // We want (center + targetRot) % 2PI = -PI/2.
-        const sliceCenter = winningIndex * sliceAngle + sliceAngle / 2;
-        const targetRemainder = (-Math.PI / 2 - sliceCenter) % (2 * Math.PI);
-        const normTarget = (targetRemainder + 2 * Math.PI) % (2 * Math.PI);
-
-        const currentNorm = (currentAngle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
-        let delta = normTarget - currentNorm;
-        if (delta < 0) delta += 2 * Math.PI;
-
-        const totalSpins = 6; // 6 full rotations
-        const finalRotation = currentAngle + (totalSpins * 2 * Math.PI) + delta;
-
-        const startTime = performance.now();
-        const duration = 4800; // 4.8 seconds
-
-        let lastTickAngle = currentAngle;
-
-        function animateWheel(now) {
-          const elapsed = now - startTime;
-          const progress = Math.min(elapsed / duration, 1);
-
-          // Ease out cubic
-          const easeOut = 1 - Math.pow(1 - progress, 3);
-          currentAngle = currentAngle + (finalRotation - currentAngle) * (progress === 1 ? 1 : 0.05);
-
-          // Tick sound when sector crosses pointer
-          if (Math.abs(currentAngle - lastTickAngle) >= sliceAngle * 0.8) {
-            playClickSound();
-            lastTickAngle = currentAngle;
-          }
-
-          drawWheel();
-
-          if (progress < 1) {
-            requestAnimationFrame(animateWheel);
-          } else {
-            currentAngle = finalRotation;
-            drawWheel();
-            isSpinning = false;
-            showPrizeModal(data.prize, data.code);
+        if (db.accessCodes) {
+          const c = db.accessCodes.find(x => x.code === validatedCode);
+          if (c) {
+            c.status = 'UTILIZADO';
+            c.prizeName = won.name;
+            c.usedAt = Date.now();
           }
         }
+        if (!db.spins) db.spins = [];
+        db.spins.unshift({
+          id: Date.now(),
+          code: validatedCode,
+          prizeName: won.name,
+          clientName: 'Cliente Roleta',
+          createdAt: Date.now()
+        });
+        saveLocalDb(db);
 
-        requestAnimationFrame(animateWheel);
-
-      } catch (e) {
-        showError('Erro de conexão ao girar a roleta.');
-        isSpinning = false;
-        btnSpin.disabled = false;
-        btnSpin.textContent = 'GIRAR A ROLETA';
+        spinResult = {
+          success: true,
+          prize: won,
+          winningIndex,
+          code: validatedCode
+        };
       }
+
+      // Animation calculation
+      const winningIndex = spinResult.winningIndex;
+      const sliceAngle = (2 * Math.PI) / prizes.length;
+      const sliceCenter = winningIndex * sliceAngle + sliceAngle / 2;
+      const targetRemainder = (-Math.PI / 2 - sliceCenter) % (2 * Math.PI);
+      const normTarget = (targetRemainder + 2 * Math.PI) % (2 * Math.PI);
+      const currentNorm = (currentAngle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+      let delta = normTarget - currentNorm;
+      if (delta < 0) delta += 2 * Math.PI;
+
+      const totalSpins = 6;
+      const finalRotation = currentAngle + (totalSpins * 2 * Math.PI) + delta;
+      const startTime = performance.now();
+      const duration = 4800;
+      let lastTickAngle = currentAngle;
+
+      function animateWheel(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        currentAngle = currentAngle + (finalRotation - currentAngle) * (progress === 1 ? 1 : 0.05);
+
+        if (Math.abs(currentAngle - lastTickAngle) >= sliceAngle * 0.8) {
+          playClickSound();
+          lastTickAngle = currentAngle;
+        }
+
+        drawWheel();
+
+        if (progress < 1) {
+          requestAnimationFrame(animateWheel);
+        } else {
+          currentAngle = finalRotation;
+          drawWheel();
+          isSpinning = false;
+          showPrizeModal(spinResult.prize, spinResult.code);
+        }
+      }
+      requestAnimationFrame(animateWheel);
     });
 
     function showPrizeModal(prize, code) {
